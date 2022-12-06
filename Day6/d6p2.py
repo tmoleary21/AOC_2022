@@ -3,7 +3,6 @@ def findNUnique(n, buffer):
     last_n = buffer[:n]
     bufferDistance = -1
     for i in range(n,len(buffer)):
-        print(last_n)
         if len(last_n) == len(set(last_n)):
             bufferDistance = i
             break

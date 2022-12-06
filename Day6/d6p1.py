@@ -10,4 +10,4 @@ for i in range(4,len(buffer)):
         break
     last_4 = last_4[1:] + buffer[i]
 
-print("The number of characters processed before start-of-packet marker is", bufferDistance)
+print("The number of characters processed before start-of-message marker is", bufferDistance)
