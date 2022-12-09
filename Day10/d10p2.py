@@ -18,7 +18,6 @@ def cycleActions():
 
 for pc in range(len(instructions)):
     parts = instructions[pc].split(' ')
-    print(cycle, instructions[pc])
     if parts[0] == 'addx':
         cycleActions() #Cycle 1
         cycleActions() #Cycle 2
