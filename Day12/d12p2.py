@@ -44,6 +44,3 @@ for i in range(len(heatmap)):
 
 
 print(shortest)
-
-# print(heatmap[20][146])
-# print(distances[20][146])

@@ -54,6 +54,3 @@ for row in distances:
 
 print()
 print(shortest_distance)
-
-# print(heatmap[20][146])
-# print(distances[20][146])
