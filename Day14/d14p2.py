@@ -61,6 +61,7 @@ class Cave:
         self.maxX = maxX
         self.maxY = maxY
         self.grid = [['.']*(maxX-minX+1) for _ in range(maxY+1)]
+        self.grid.extend([['.']*(maxX-minX+1), ['#']*(maxX-minX+1)]) # Add last two rows with floor
         self.start = self.normalizeVector(Vector(500,0))
         
     def normalizeVector(self, vect: Vector):
@@ -86,35 +87,19 @@ class Cave:
         while True:
             if self.grid[sand.y+1][sand.x] == '.':
                 sand.y += 1
-            elif self.grid[sand.y+1][sand.x-1] == '.': #Left
+            elif sand.x-1 >= 0 and self.grid[sand.y+1][sand.x-1] == '.': #Left
                 sand.y += 1
                 sand.x -= 1
-            elif self.grid[sand.y+1][sand.x+1] == '.': #Right
+            elif sand.x+1 < len(self.grid[sand.y+1]) and self.grid[sand.y+1][sand.x+1] == '.': #Right
                 sand.y += 1
                 sand.x += 1
             else:
                 self.grid[sand.y][sand.x] = 'O' #Settled
-                return True
-            if sand.y >= self.maxY: #Fell out the bottom
-                return False
-
-    def addFinalPath(self):
-        sand = self.start.copy()
-        while True:
-            self.grid[sand.y][sand.x] = '~'
-            if self.grid[sand.y+1][sand.x] == '.':
-                sand.y += 1
-            elif self.grid[sand.y+1][sand.x-1] == '.': #Left
-                sand.y += 1
-                sand.x -= 1
-            elif self.grid[sand.y+1][sand.x+1] == '.': #Right
-                sand.y += 1
-                sand.x += 1
-            else:
-                self.grid[sand.y][sand.x] = 'O' #Settled
-                break
-            if sand.y >= self.maxY: #Fell out the bottom
-                break
+                if sand == self.start:
+                    return False
+                else:
+                    return True
+                    
 
 
 
@@ -122,23 +107,30 @@ with open('input.txt', 'r') as f:
     rocks_str = f.read().split('\n')[:-1]
 
 
-minX = 1_000_000
-maxX = 0
+minXCoord = Vector(1_000_000, 1_000_000)
+maxXCoord = Vector(0, 1_000_000)
 maxY = 0
 
 def formingStep(coord_str):
-    global minX, maxX, maxY
+    global minXCoord, maxXCoord, maxY
     x,y = coord_str.split(',')
     coord = Vector(int(x),int(y))
-    if coord.x < minX:
-        minX = coord.x
-    if coord.x > maxX:
-        maxX = coord.x
+    if coord.x < minXCoord.x:
+        minXCoord = coord
+    if coord.x == minXCoord.x and coord.y < minXCoord.y: # Equal to current min x but associated y is higher
+        minXCoord = coord
+    if coord.x > maxXCoord.x:
+        maxXCoord = coord
+    if coord.x == maxXCoord.x and coord.y < maxXCoord.y:
+        maxXCoord = coord
     if coord.y > maxY:
         maxY = coord.y
     return coord
 
 rocks = [[formingStep(coord) for coord in structure.split(' -> ')] for structure in rocks_str]
+
+minX = min(minXCoord.x - ((maxY+2)-minXCoord.y), 500-(maxY+2))
+maxX = max(maxXCoord.x + ((maxY+2)-maxXCoord.y), 500+(maxY+2))
 
 cave = Cave(minX, maxX, maxY)
 
@@ -148,11 +140,10 @@ for structure in rocks:
 
 # The cave has now been populated with its rocks
 
-total_rested = 0
+total_rested = 1 # dropSand ends right at the final sand, so misses the last piece in the sum
 while cave.dropSand():
     total_rested += 1
 
-cave.addFinalPath()
 print(cave)
 print(total_rested)
 
